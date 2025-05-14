@@ -132,6 +132,33 @@ Proof verified successfully
 
 Meaning the proof is valid for completing the specified circuit.
 
+## Generate Solidity Verifier
+
+It is possible to generate a Solidity smart contract that can be used to verify proof onchain. Simply run the contract and deploy it to any EVM chain to being verifying proof of knowledge of a password on chain! 
+
+```bash
+bb write_solidity_verifier -k ./target/vk -o ./target/Verifier.sol
+```
+
+Then test this out in Remix for example and deploy the `HonkVerifier` contract which just exposes one function `verify` defined as follows:
+
+```solidity
+function verify(bytes calldata proof, 
+                bytes32[] calldata publicInputs) public view override returns (bool)
+```
+
+In Remix you can call this function by passing the `proof` and the `publicInputs`.
+
+You need to regenerate the `target/proof` file such that it separates the public inputs from the actual proof using the following command (which is the same `bb prove` command as used earlier with a the `--oracle_hash` and `--output_format` options)
+
+```bash
+bb prove -w target/workshop.gz -b target/workshop.json -o target --oracle_hash keccak --output_format bytes_and_fields
+```
+
+Since we used `--output_format bytes_and_fields` flag, you will have a `target/public_fields.json` file containing an array of public inputs in hex format, which can be directly pasted into Remix.
+
+More details for generating and deploying the Solidity verifier contract can be found in the Noir docs [here](https://noir-lang.org/docs/dev/how_to/how-to-solidity-verifier).
+
 ## Summary
 
 Alice Generates Proof
