@@ -45,9 +45,9 @@ In this scenario Alice wants to proof to Bob ('the bouncer') that she knows the 
 To recap:
 
 * Alice knows the password
-* Bob knows the password hash
+* Bob only knows the password hash (NOT the actual password!)
 
-Generate an empty placeholder `Prover.toml` by running: ``
+Generate an empty placeholder `Prover.toml` by running:
 
 ```bash
 nargo check
@@ -77,13 +77,13 @@ However, its not possible to simly provide the witness file to the validator (Bo
 
 ## Build a Proof
 
-We use barretenberg (`bb`) to build a proof using the witness `workshop.gz`. You can consider the witness to be the compiled circit and the proof actually prooves the witness compleed the circut using the correct preimage password.
+We use barretenberg (`bb`) to build a proof using the witness `workshop.gz`. You can consider the witness to be the compiled circuit and the proof actually prooves the witness compleed the circut using the correct preimage password.
 
 ```bash
 bb prove -w target/workshop.gz -b target/workshop.json -o target
 ```
 
-This will use the barretenberg service to generate a proof that the witness really completed the circit and know the preimage of the hash.
+This will use the barretenberg service to generate a proof that the witness really completed the circuit and know the preimage of the hash.
 
 The proof file will be saved in `target/proof`. It is unreadable but you can use the following command to read it:
 
@@ -101,17 +101,17 @@ As you can see the beginning of the proof is `23864adb160dddf590f1d3303683ebcb91
 
 ## Verify the Proof
 
-Now we put ourselves in the shoes of Bob. He is the bouncer and Alice has provided him with the `target/proof` file. Bob also has the circit program `src/main.nr` and the public inputs `password_hash` value. However, Bob does NOT know the `password` and (at this point) does not know if the proof is valid.
+Now we put ourselves in the shoes of Bob. He is the bouncer and Alice has provided him with the `target/proof` file. Bob also has the circuit program `src/main.nr` and the public inputs `password_hash` value (which is included in the proof file as mentioned earlier). However, Bob does NOT know the `password` and also does not yet know if the proof is valid!
 
 So now Bob needs to verify the proof!
 
-First lets just assume that Bob only has the `src/main.nr` file in the project. First he can compile like so:
+First lets just assume that Bob only has the `src/main.nr` and `target/proof` files in his project. First he can compile like so:
 
 ```bash
 nargo compile
 ```
 
-How can Bob be certain that he is compiling the same circit that Alice compiled? This is where `bb` can be used again:
+How can Bob be certain that he is compiling the same circuit that Alice compiled? This is where `bb` can be used again:
 
 ```bash
 bb write_vk -b target/workshop.json -o target
