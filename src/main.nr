@@ -22,3 +22,11 @@ fn test_main() {
 
     main(password, password_hash);
 }
+
+#[test(should_fail)]
+fn test_invalid_password() {
+    let password = [3,2,1]; // wrong password so should fail!
+    let password_hash = 0x23864adb160dddf590f1d3303683ebcb914f828e2635f6e85a32f0a1aecd3dd8;
+
+    main(password, password_hash);
+}

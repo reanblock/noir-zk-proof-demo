@@ -36,7 +36,69 @@ nargo init --name workshop
 nargo test --show-output
 ```
 
-## Build
+## Build a Witness
+
+In this scenario Alice wants to proof to Bob ('the bouncer') that she knows the correct password to enter the fight club. However, she does not want Bob to know the password becasue he is not a member of the club (he is just employed as a bouncer and is not allowed in).
+
+![Alice & Bob](img/alice-and-bob.png)
+
+To recap:
+
+* Alice knows the password
+* Bob knows the password hash
+
+Generate an empty placeholder `Prover.toml` by running: ``
+
+```bash
+nargo check
+```
+
+The placeholder looks like this:
+
+```toml
+password = ["", "", ""]
+password_hash = ""
+```
+
+This needs to be completed by Alice with the correct `password` and `password_hash`. Obviously this needs to remain private and would not be shared or committed into Github!
+
+Now Alice can generate the proof that she knows the password by running:
+
+```bash
+nargo execute
+```
+
+This generates two files in the `/target` directory. 
+
+- `workshop.json` is similar to an ABI file that is generated when compiling a Solidity contract
+- `workshop.gz` is the witness file which is the solution to the circuit that we can use to genearate a proof for Alices claim that she knows the password. 
+
+However, its not possible to simly provide the witness file to the validator (Bob) as that does not prove that Alice knows the password. What we need to do is generate a proof! 
+
+## Build a Proof
+
+We use barretenberg (`bb`) to build a proof using the witness `workshop.gz`. You can consider the witness to be the compiled circit and the proof actually prooves the witness compleed the circut using the correct preimage password.
+
+```bash
+bb prove -w target/workshop.gz -b target/workshop.json -o target
+```
+
+This will use the barretenberg service to generate a proof that the witness really completed the circit and know the preimage of the hash.
+
+The proof file will be saved in `target/proof`. It is unreadable but you can use the following command to read it:
+
+```bash
+cat ./target/proof | od -An -v -t x1 | tr -d $' \n' | sed 's/^.\{8\}//'
+```
+
+NOTE: The plain text, preimage password string is NOT in the proof file at all! However you should see the first part of the proof are the public inputs (the `password_hash`).
+
+```
+23864adb160dddf590f1d3303683ebcb914f828e2635f6e85a32f0a1aecd3dd800000000000000000000000000000016a29678b012b7df7ce728ea782aa9667300000000000000000000000000000000001afdc6cdff233901cc7bf865269ccb000000000000000000000000000000f .....<snip>
+```
+
+As you can see the beginning of the proof is `23864adb160dddf590f1d3303683ebcb914f828e2635f6e85a32f0a1aecd3dd8` which is the `password_hash`!
+
 
 ## Test
 
