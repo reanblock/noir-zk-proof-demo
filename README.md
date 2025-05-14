@@ -148,4 +148,4 @@ Bob Validates Proof
 2. Generate the verification key `bb write_vk -b target/workshop.json -o target` 
 3. Verify the proof `bb verify` 
 
-## Deploy
+NOTE: If you want to test the verify process using a simple repo that just contains the `main.nr` circuit code and the `proof` the you can clone the [noir-zk-proof-verify](https://github.com/reanblock/noir-zk-proof-verify) repo and test it out!
